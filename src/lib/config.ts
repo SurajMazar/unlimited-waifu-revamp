@@ -76,18 +76,31 @@ function genArchConfig(): ArchTable {
 
 const ARCH = genArchConfig();
 
+// Cache-busting token appended to every model URL.
+//
+// An earlier deploy shipped without the .onnx weights, and vercel.json applied
+// `immutable, max-age=1y` to those 404s — so browsers that visited while the
+// models were missing pinned the 404 and won't re-request the path even now
+// that it serves correctly. Bumping this changes the URL, sidestepping those
+// poisoned entries without asking every user to clear their cache.
+const MODEL_VERSION = '2';
+
+function modelUrl(path: string): string {
+  return `${path}?v=${MODEL_VERSION}`;
+}
+
 export const CONFIG = {
   arch: ARCH,
   get_config(arch: Arch, domain: Domain, method: string): MethodConfig | null {
     const table = this.arch[arch]?.[domain];
     if (table && method in table) {
       const config = { ...table[method] };
-      config.path = `models/${arch}/${domain}/${method}.onnx`;
+      config.path = modelUrl(`models/${arch}/${domain}/${method}.onnx`);
       return config;
     }
     return null;
   },
   get_helper_model_path(name: string): string {
-    return `models/utils/${name}.onnx`;
+    return modelUrl(`models/utils/${name}.onnx`);
   },
 };
