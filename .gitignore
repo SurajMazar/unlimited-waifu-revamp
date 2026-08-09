@@ -1,0 +1,9 @@
+node_modules
+dist
+dist-ssr
+*.local
+.DS_Store
+
+# ONNX model weights are large binary assets — see README for how to get them
+public/models/**/*.onnx
+!public/models/utils/.gitkeep

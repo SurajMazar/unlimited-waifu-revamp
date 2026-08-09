@@ -1,0 +1,127 @@
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --font-display: 'Baloo 2', 'system-ui', sans-serif;
+  --font-body: 'Quicksand', 'system-ui', sans-serif;
+
+  --color-sakura-50: #fff5f8;
+  --color-sakura-100: #ffe4ee;
+  --color-sakura-200: #ffc9de;
+  --color-sakura-300: #ffa9cc;
+  --color-sakura-400: #ff85b8;
+  --color-sakura-500: #ff5fa2;
+  --color-sakura-600: #f13d85;
+
+  --color-lavender-50: #f6f3ff;
+  --color-lavender-100: #ece4ff;
+  --color-lavender-200: #d9caff;
+  --color-lavender-300: #c1a8ff;
+  --color-lavender-400: #a685ff;
+
+  --color-mint-100: #dcfff2;
+  --color-mint-200: #b8ffe4;
+  --color-mint-300: #8dfdd2;
+
+  --color-cream-50: #fffaf3;
+  --color-cream-100: #fff2e2;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  background: linear-gradient(160deg, var(--color-cream-50) 0%, var(--color-sakura-50) 45%, var(--color-lavender-50) 100%);
+  color: #5b4a55;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-display);
+}
+
+/* floating sparkle / petal decorations */
+.petal {
+  position: fixed;
+  pointer-events: none;
+  opacity: 0.55;
+  animation: float-down linear infinite;
+  z-index: 0;
+}
+
+@keyframes float-down {
+  0% {
+    transform: translateY(-10vh) translateX(0) rotate(0deg);
+  }
+  100% {
+    transform: translateY(110vh) translateX(30px) rotate(360deg);
+  }
+}
+
+@keyframes pop-in {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-pop-in {
+  animation: pop-in 0.35s ease-out;
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-bob {
+  animation: bob 2.6s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer-bg {
+  background: linear-gradient(90deg, var(--color-sakura-200) 0%, var(--color-lavender-200) 50%, var(--color-sakura-200) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+}
+
+/* cute scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-sakura-50);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-sakura-300);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-sakura-400);
+}
