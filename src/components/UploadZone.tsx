@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import { checkClipboardSupport, readImageFromClipboard, uuid } from '../lib/clipboard';
 
 interface Props {
@@ -32,7 +33,8 @@ export function UploadZone({ previewUrl, disabled, onFile }: Props) {
   }, [disabled, onFile]);
 
   return (
-    <div
+    <motion.div
+      whileHover={disabled ? undefined : { scale: 1.01 }}
       onDragOver={(e) => {
         e.preventDefault();
         if (!disabled) setDragOver(true);
@@ -44,8 +46,8 @@ export function UploadZone({ previewUrl, disabled, onFile }: Props) {
         handleFiles(e.dataTransfer.files);
       }}
       onClick={() => !disabled && inputRef.current?.click()}
-      className={`group relative flex flex-col items-center justify-center gap-3 rounded-3xl border-4 border-dashed p-6 text-center transition-all cursor-pointer select-none
-        ${dragOver ? 'border-sakura-400 bg-sakura-100 scale-[1.02]' : 'border-sakura-200 bg-white/70 hover:bg-sakura-50'}
+      className={`group relative flex flex-col items-center justify-center gap-3 rounded-3xl border-2 border-dashed p-6 text-center transition-colors cursor-pointer select-none
+        ${dragOver ? 'border-neon-pink bg-white/[0.07]' : 'border-white/15 glass-panel hover:border-neon-violet/50'}
         ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
     >
       <input
@@ -60,15 +62,15 @@ export function UploadZone({ previewUrl, disabled, onFile }: Props) {
         <img
           src={previewUrl}
           alt="preview"
-          className="max-h-40 rounded-2xl border-4 border-white shadow-md object-contain"
+          className="max-h-40 rounded-2xl border border-white/10 shadow-lg object-contain"
         />
       ) : (
         <div className="text-6xl animate-bob">🖼️</div>
       )}
-      <p className="font-display font-bold text-sakura-600">
-        {previewUrl ? 'Looking cute! Click or drop to change' : 'Drop your image here'}
+      <p className="font-display font-bold text-mist-100">
+        {previewUrl ? 'Loaded — click or drop to swap' : 'Drop your image here'}
       </p>
-      <p className="text-xs text-lavender-400">or click to browse{clipboardSupported ? ' · or paste from clipboard' : ''}</p>
+      <p className="text-xs text-mist-500">or click to browse{clipboardSupported ? ' · or paste from clipboard' : ''}</p>
       {clipboardSupported && (
         <button
           type="button"
@@ -77,11 +79,11 @@ export function UploadZone({ previewUrl, disabled, onFile }: Props) {
             e.stopPropagation();
             handlePaste();
           }}
-          className="mt-1 rounded-full bg-lavender-100 px-4 py-1.5 text-sm font-semibold text-lavender-400 shadow-sm hover:bg-lavender-200 transition-colors disabled:opacity-50"
+          className="mt-1 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-sm font-semibold text-mist-300 transition-colors hover:border-neon-cyan-soft hover:text-neon-cyan-soft disabled:opacity-50"
         >
           📋 Paste image
         </button>
       )}
-    </div>
+    </motion.div>
   );
 }

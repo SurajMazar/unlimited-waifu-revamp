@@ -1,13 +1,15 @@
 # unlimited:waifu2x ✨ (React rewrite)
 
 A from-scratch React + TypeScript rewrite of the classic [unlimited:waifu2x](https://github.com/nagadomi/nunif)
-browser app, with a soft pastel "kawaii" anime UI. All AI upscaling/denoising still runs **entirely client-side**
-in the browser via [onnxruntime-web](https://onnxruntime.ai/docs/tutorials/web/) (WebAssembly) — no server, no
-uploads, no backend required.
+browser app, with a dark neon "anime poster" landing page and UI (Framer Motion + GSAP for the animation
+layer). All AI upscaling/denoising still runs **entirely client-side** in the browser via
+[onnxruntime-web](https://onnxruntime.ai/docs/tutorials/web/) (WebAssembly) — no server, no uploads, no
+backend required.
 
 This is a faithful port of the original `script.js` engine (tiled rendering, seam blending, TTA ensemble,
 alpha-channel handling, single-color tile shortcut, etc.) into typed modules under `src/lib/`, wired up to a
-new React UI under `src/components/`.
+new React UI under `src/components/` — a hero landing section, a features section, and the upscaler tool
+itself, all on one scrollable page.
 
 ## Getting started
 
@@ -16,7 +18,17 @@ pnpm install
 pnpm dev
 ```
 
-Then open the printed local URL. Drop an image, pick a model/denoise/scale, hit **Start**.
+Then open the printed local URL. Scroll or hit **Launch the Upscaler**, drop an image, pick a
+model/denoise/scale, hit **Start**.
+
+### A note on onnxruntime-web + Vite
+
+`onnxruntime-web`'s default export resolves to its self-contained "bundle" build, which is meant for plain
+`<script>` tag usage — under a real bundler its internal worker bootstrapping breaks (`document is not
+defined` inside the worker). `vite.config.ts` forces the `onnxruntime-web-use-extern-wasm` resolve condition
+instead, which expects the wasm/worker runtime files to be served as static assets. Those are copied into
+`public/ort/` (`ort.min.mjs`, `ort-wasm-simd-threaded.jsep.mjs/.wasm`) — if you ever upgrade
+`onnxruntime-web`, re-copy those three files from `node_modules/onnxruntime-web/dist/`.
 
 ### Model files
 
@@ -66,9 +78,10 @@ src/
     preferences.ts     # localStorage-persisted UI preferences
   hooks/
     useWaifu2x.ts      # React hook wrapping the engine with UI state
-  components/          # kawaii pastel UI components
+  components/          # dark neon anime UI (Hero, FeaturesSection, upscaler tool, AnimeBackground)
 public/
   models/              # ONNX model weights (see above)
+  ort/                 # onnxruntime-web wasm/worker runtime (see note above)
 ```
 
 ## Credits

@@ -1,7 +1,9 @@
 import { useRef } from 'react';
-import { Header } from './components/Header';
+import { motion } from 'framer-motion';
+import { AnimeBackground } from './components/AnimeBackground';
+import { Hero } from './components/Hero';
+import { FeaturesSection } from './components/FeaturesSection';
 import { Footer } from './components/Footer';
-import { PetalBackground } from './components/PetalBackground';
 import { MascotMessage } from './components/MascotMessage';
 import { UploadZone } from './components/UploadZone';
 import { ControlsPanel } from './components/ControlsPanel';
@@ -12,6 +14,7 @@ import { useWaifu2x } from './hooks/useWaifu2x';
 
 function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const appSectionRef = useRef<HTMLDivElement>(null);
   const {
     prefs,
     setPrefs,
@@ -29,13 +32,31 @@ function App() {
     downloadName,
   } = useWaifu2x(canvasRef);
 
+  const scrollToApp = () => {
+    appSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   return (
     <div className="relative min-h-screen">
-      <PetalBackground />
+      <AnimeBackground />
       <div className="relative z-10">
-        <Header />
+        <Hero onLaunch={scrollToApp} />
+        <FeaturesSection />
 
-        <main className="mx-auto flex max-w-3xl flex-col gap-6 px-4 pb-16">
+        <motion.section
+          ref={appSectionRef}
+          id="app"
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.15 }}
+          transition={{ duration: 0.5 }}
+          className="mx-auto flex max-w-3xl scroll-mt-8 flex-col gap-6 px-4 pb-24 pt-6"
+        >
+          <div className="mb-2 text-center">
+            <h2 className="font-display text-3xl font-bold text-mist-100 sm:text-4xl">The Upscaler</h2>
+            <p className="mt-1 text-sm text-mist-500">Drop an image, tune the settings, and hit start.</p>
+          </div>
+
           <MascotMessage message={message} mood={mood} />
 
           <UploadZone previewUrl={previewUrl} disabled={running} onFile={loadFile} />
@@ -47,7 +68,7 @@ function App() {
           <ProgressBar progress={progress} max={maxProgress} active={running} />
 
           <ResultViewer canvasRef={canvasRef} resultUrl={resultUrl} downloadName={downloadName} hasImage={!!file} />
-        </main>
+        </motion.section>
 
         <Footer />
       </div>

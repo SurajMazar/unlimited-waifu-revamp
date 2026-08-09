@@ -6,8 +6,14 @@ import { decodeImage } from '../lib/imageUtils';
 import { loadPreferences, savePreferences, type Preferences } from '../lib/preferences';
 import type { Arch, Domain } from '../lib/types';
 
-// Vite resolves onnxruntime-web's wasm binaries automatically via import.meta.url,
-// so no manual wasmPaths configuration is needed here.
+// We force Vite to resolve onnxruntime-web's "extern wasm" build (see vite.config.ts),
+// which expects the wasm/worker runtime files to be served ourselves rather than
+// bundled — they're copied into public/ort/ (see README for how to refresh them).
+ort.env.wasm.wasmPaths = `${import.meta.env.BASE_URL}ort/`;
+// Avoid the dedicated proxy-worker path entirely — it's the piece that broke under
+// bundlers in the first place, and single/pthreaded wasm on the main thread is plenty
+// fast for tiled rendering.
+ort.env.wasm.proxy = false;
 if (typeof navigator !== 'undefined' && navigator.hardwareConcurrency) {
   // Threaded wasm only kicks in when the page is cross-origin isolated
   // (see the Cross-Origin-Opener/Embedder-Policy headers in vercel.json).

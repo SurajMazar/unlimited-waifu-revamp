@@ -1,4 +1,5 @@
 import { useState, type RefObject } from 'react';
+import { motion } from 'framer-motion';
 
 interface Props {
   canvasRef: RefObject<HTMLCanvasElement | null>;
@@ -11,9 +12,9 @@ export function ResultViewer({ canvasRef, resultUrl, downloadName, hasImage }: P
   const [zoomed, setZoomed] = useState(false);
 
   return (
-    <div className="flex flex-col items-center gap-3 rounded-3xl bg-white/70 p-5 shadow-sm border-2 border-mint-200">
-      <p className="text-xs font-bold uppercase tracking-wide text-lavender-400">Result</p>
-      <div className="w-full overflow-auto rounded-2xl border-4 border-white bg-[repeating-conic-gradient(#f3f3f3_0%_25%,white_0%_50%)] bg-[length:20px_20px] shadow-inner">
+    <div className="glass-panel glow-border flex flex-col items-center gap-3 rounded-3xl p-5">
+      <p className="text-xs font-bold uppercase tracking-wide text-mist-500">Result</p>
+      <div className="w-full overflow-auto rounded-2xl border border-white/10 bg-[repeating-conic-gradient(#1b1733_0%_25%,#0c0a17_0%_50%)] bg-[length:20px_20px] shadow-inner">
         <canvas
           ref={canvasRef}
           onClick={() => setZoomed((z) => !z)}
@@ -23,15 +24,17 @@ export function ResultViewer({ canvasRef, resultUrl, downloadName, hasImage }: P
         />
       </div>
       {resultUrl ? (
-        <a
+        <motion.a
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           href={resultUrl}
           download={downloadName}
-          className="font-display rounded-full bg-mint-200 px-6 py-2 font-bold text-emerald-700 shadow-sm transition-all hover:bg-mint-300 hover:scale-105"
+          className="font-display rounded-full bg-gradient-to-r from-neon-cyan to-neon-violet px-6 py-2 font-bold text-ink-950 shadow-[0_0_24px_-6px_rgba(47,227,255,0.7)]"
         >
           ⬇ Download PNG
-        </a>
+        </motion.a>
       ) : (
-        <p className="text-xs text-lavender-400">Your upscaled image will appear here~</p>
+        <p className="text-xs text-mist-500">Your upscaled image will appear here~</p>
       )}
     </div>
   );
