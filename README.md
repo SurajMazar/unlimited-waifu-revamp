@@ -47,14 +47,11 @@ instead, which expects the wasm/worker runtime files to be served as static asse
 
 ### Model files
 
-The `.onnx` model weights (~300MB total) are **not** committed to this repo. They should already be copied
-into `public/models/` for you (mirroring the original project's `models/` folder structure:
-`models/swin_unet/...`, `models/cunet/...`, `models/utils/...`). If that folder is empty, copy it over from
-the original project:
-
-```bash
-cp -R ../nunif-onnx-unlimited-waifu-seperated/old_html/public_html/models public/
-```
+The `.onnx` model weights (~444MB total, mirroring the original project's `models/` folder structure:
+`models/swin_unet/...`, `models/cunet/...`, `models/utils/...`) are committed directly to this repo under
+`public/models/`, so `git clone` + `pnpm install` + `pnpm build` is enough to deploy — no separate asset
+provisioning step needed. If you'd rather not ship that much binary weight in your git history, move
+`models/` to a CDN/object store instead and point `CONFIG.get_config`'s `path` in `src/lib/config.ts` at it.
 
 ## Scripts
 
@@ -73,11 +70,8 @@ This is a static SPA (Vite build), so it deploys to Vercel with zero config beyo
   `SharedArrayBuffer` and onnxruntime-web can run multi-threaded WASM for faster inference.
 - Long-lived cache headers for the `.onnx` model files and the `.wasm` runtime.
 
-Just import the repo in Vercel (or run `vercel`), keep the framework preset as **Vite**, and make sure the
-`public/models/` folder (or an equivalent asset host) is included in the deployment — see the note above,
-since the model weights are excluded from git via `.gitignore` to keep the repo lightweight. If you'd rather
-not ship 300MB of binaries in your deployment, consider hosting `models/` on a static CDN/object storage and
-adjusting `CONFIG.get_config`'s `path` in `src/lib/config.ts` to point at the CDN URL instead.
+Just import the repo in Vercel (or run `vercel`), keep the framework preset as **Vite**, and it'll deploy with
+the model weights included — see the note above if you'd rather host them externally instead.
 
 ## Project structure
 
