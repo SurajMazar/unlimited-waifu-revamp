@@ -1,28 +1,73 @@
-@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
 @import 'tailwindcss';
 
 @theme {
-  --font-display: 'Rajdhani', 'system-ui', sans-serif;
+  --font-display: 'Fraunces', 'Georgia', serif;
   --font-body: 'Inter', 'system-ui', sans-serif;
 
-  /* ink / base surfaces */
-  --color-ink-950: #07060d;
-  --color-ink-900: #0c0a17;
-  --color-ink-800: #131025;
-  --color-ink-700: #1b1733;
-  --color-ink-600: #26224a;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
 
-  /* neon accents */
-  --color-neon-pink: #ff2f92;
-  --color-neon-pink-soft: #ff6fb3;
-  --color-neon-cyan: #2fe3ff;
-  --color-neon-cyan-soft: #7ff0ff;
-  --color-neon-violet: #9b5cff;
-  --color-neon-violet-soft: #bf95ff;
+  /* raw forest palette, for one-off accents outside the shadcn token set */
+  --color-moss-100: #eef1e2;
+  --color-moss-300: #c3cfa8;
+  --color-moss-500: #8ba06a;
+  --color-forest-600: #3f5c3f;
+  --color-forest-700: #33492f;
+  --color-forest-800: #253524;
+  --color-bark-500: #8a6f52;
+  --color-bark-700: #5c4a37;
+  --color-sky-300: #bcd4d6;
+  --color-sky-500: #83a9ae;
+  --color-lantern-400: #e8b25f;
+  --color-lantern-500: #d99a3d;
+}
 
-  --color-mist-100: #f4f2ff;
-  --color-mist-300: #cbc4ef;
-  --color-mist-500: #8f87b8;
+:root {
+  --background: #f6f1e4;
+  --foreground: #2e2a20;
+
+  --card: #fbf8ee;
+  --card-foreground: #2e2a20;
+
+  --popover: #fbf8ee;
+  --popover-foreground: #2e2a20;
+
+  --primary: #3f5c3f;
+  --primary-foreground: #f6f1e4;
+
+  --secondary: #b9d2d4;
+  --secondary-foreground: #24393a;
+
+  --muted: #e8e1cd;
+  --muted-foreground: #6b6350;
+
+  --accent: #d9c99a;
+  --accent-foreground: #3a331f;
+
+  --destructive: #a8503a;
+
+  --border: #d9d0b4;
+  --input: #d9d0b4;
+  --ring: #3f5c3f;
+
+  --radius: 0.85rem;
 }
 
 html,
@@ -33,14 +78,9 @@ body,
 
 body {
   font-family: var(--font-body);
-  background:
-    radial-gradient(60% 50% at 15% 0%, rgba(155, 92, 255, 0.25), transparent 60%),
-    radial-gradient(50% 40% at 100% 10%, rgba(47, 227, 255, 0.18), transparent 60%),
-    radial-gradient(70% 60% at 50% 100%, rgba(255, 47, 146, 0.14), transparent 60%),
-    var(--color-ink-950);
-  color: var(--color-mist-100);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
   min-height: 100vh;
-  overflow-x: hidden;
 }
 
 h1,
@@ -48,94 +88,75 @@ h2,
 h3,
 .font-display {
   font-family: var(--font-display);
-  letter-spacing: 0.01em;
 }
 
-.text-glow-pink {
-  text-shadow: 0 0 18px rgba(255, 47, 146, 0.55), 0 0 44px rgba(255, 47, 146, 0.25);
-}
-.text-glow-cyan {
-  text-shadow: 0 0 18px rgba(47, 227, 255, 0.55), 0 0 44px rgba(47, 227, 255, 0.25);
-}
-
-.glass-panel {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(14px);
+/* soft paper grain texture, extremely subtle */
+.grain-overlay {
+  background-image: radial-gradient(rgba(63, 92, 63, 0.035) 1px, transparent 1px);
+  background-size: 3px 3px;
 }
 
-.glow-border {
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 0 30px -6px rgba(155, 92, 255, 0.35);
-}
-
-/* faint sci-fi grid backdrop */
-.grid-overlay {
-  background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(75% 65% at 50% 20%, black, transparent);
-}
-
-/* drifting energy orbs (animated via GSAP, see AnimeBackground.tsx) */
-.orb {
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(60px);
-  opacity: 0.5;
-  will-change: transform;
-}
-
-/* anime-style speed lines accent */
-.speed-lines {
-  background: repeating-linear-gradient(
-    100deg,
-    rgba(255, 255, 255, 0.08) 0px,
-    rgba(255, 255, 255, 0.08) 2px,
-    transparent 2px,
-    transparent 26px
-  );
-  mask-image: linear-gradient(90deg, black, transparent 70%);
-}
-
-@keyframes pop-in {
-  0% {
-    transform: scale(0.94) translateY(6px);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1) translateY(0);
-    opacity: 1;
-  }
-}
-.animate-pop-in {
-  animation: pop-in 0.35s ease-out;
-}
-
-@keyframes bob {
+/* gentle drifting mist / fireflies, kept slow and low-opacity */
+@keyframes drift-slow {
   0%,
   100% {
-    transform: translateY(0);
+    transform: translate(0, 0);
   }
   50% {
-    transform: translateY(-6px);
+    transform: translate(18px, -14px);
   }
 }
-.animate-bob {
-  animation: bob 2.6s ease-in-out infinite;
+.animate-drift-slow {
+  animation: drift-slow 16s ease-in-out infinite;
 }
 
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
+@keyframes firefly-glow {
+  0%,
   100% {
-    background-position: 200% 0;
+    opacity: 0.15;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.1);
   }
 }
-.shimmer-bg {
-  background: linear-gradient(90deg, var(--color-neon-pink) 0%, var(--color-neon-violet) 50%, var(--color-neon-cyan) 100%);
-  background-size: 200% 100%;
-  animation: shimmer 1.6s linear infinite;
+.animate-firefly {
+  animation: firefly-glow 3.4s ease-in-out infinite;
+}
+
+@keyframes leaf-fall {
+  0% {
+    transform: translateY(-6vh) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.7;
+  }
+  90% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(106vh) translateX(40px) rotate(140deg);
+    opacity: 0;
+  }
+}
+.animate-leaf-fall {
+  animation: leaf-fall linear infinite;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-up {
+  animation: fade-up 0.6s ease-out both;
 }
 
 ::-webkit-scrollbar {
@@ -143,12 +164,12 @@ h3,
   height: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--color-ink-900);
+  background: var(--color-background);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-neon-violet);
+  background: var(--color-moss-500);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-neon-pink);
+  background: var(--color-forest-600);
 }

@@ -37,7 +37,7 @@ export interface Waifu2xState {
 function resolveMethod(scale: 1 | 2 | 4, noise_level: number): { method: string | null; error: string | null } {
   if (scale === 1) {
     if (noise_level === -1) {
-      return { method: null, error: 'Pick a denoise level first, senpai~ (；一_一)' };
+      return { method: null, error: 'Choose a denoise level to continue.' };
     }
     return { method: `noise${noise_level}`, error: null };
   }
@@ -48,15 +48,22 @@ function resolveMethod(scale: 1 | 2 | 4, noise_level: number): { method: string 
   return { method: `noise${noise_level}_${suffix}`, error: null };
 }
 
+export interface ImageDims {
+  width: number;
+  height: number;
+}
+
 export function useWaifu2x(outputCanvasRef: React.RefObject<HTMLCanvasElement | null>) {
   const [prefs, setPrefsState] = useState<Preferences>(() => loadPreferences());
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [resultUrl, setResultUrl] = useState<string | null>(null);
+  const [sourceDims, setSourceDims] = useState<ImageDims | null>(null);
+  const [resultDims, setResultDims] = useState<ImageDims | null>(null);
   const [running, setRunning] = useState(false);
   const [progress, setProgress] = useState(0);
   const [maxProgress, setMaxProgress] = useState(0);
-  const [message, setMessage] = useState('Drop a picture on me, onegai! (・∀・)');
+  const [message, setMessage] = useState('Bring an image, and the workshop will begin.');
   const [mood, setMood] = useState<MascotMood>('idle');
   const imgRef = useRef<HTMLImageElement | null>(null);
 
@@ -72,6 +79,7 @@ export function useWaifu2x(outputCanvasRef: React.RefObject<HTMLCanvasElement | 
     if (onnxRunner.running) return;
     setFile(f);
     setResultUrl(null);
+    setResultDims(null);
     const reader = new FileReader();
     reader.onload = () => {
       const url = reader.result as string;
@@ -79,11 +87,12 @@ export function useWaifu2x(outputCanvasRef: React.RefObject<HTMLCanvasElement | 
       const img = new Image();
       img.onload = () => {
         imgRef.current = img;
+        setSourceDims({ width: img.naturalWidth, height: img.naturalHeight });
       };
       img.src = url;
     };
     reader.readAsDataURL(f);
-    setMessage('Got it! Ready when you are (｡・∀・)ﾉﾞ');
+    setMessage('Image received. Choose your settings, then begin.');
     setMood('happy');
   }, []);
 
@@ -91,8 +100,10 @@ export function useWaifu2x(outputCanvasRef: React.RefObject<HTMLCanvasElement | 
     setFile(null);
     setPreviewUrl(null);
     setResultUrl(null);
+    setSourceDims(null);
+    setResultDims(null);
     imgRef.current = null;
-    setMessage('Drop a picture on me, onegai! (・∀・)');
+    setMessage('Bring an image, and the workshop will begin.');
     setMood('idle');
   }, []);
 
@@ -103,20 +114,20 @@ export function useWaifu2x(outputCanvasRef: React.RefObject<HTMLCanvasElement | 
   const start = useCallback(async () => {
     if (onnxRunner.running) return;
     if (!file || !imgRef.current) {
-      setMessage('No image found yet (ﾟ∀ﾟ)');
+      setMessage('Bring an image first — drop one in above.');
       setMood('error');
       return;
     }
     const [archStr, domainStr] = prefs.model.split('.') as [Arch, Domain];
     const { method, error } = resolveMethod(prefs.scale, prefs.noise_level);
     if (error || !method) {
-      setMessage(error ?? 'Something is off with the settings (・A・)');
+      setMessage(error ?? 'Something in the settings needs a second look.');
       setMood('error');
       return;
     }
     const config = CONFIG.get_config(archStr, domainStr, method);
     if (!config) {
-      setMessage('Model not found! (・A・)');
+      setMessage('That model could not be found.');
       setMood('error');
       return;
     }
@@ -137,7 +148,7 @@ export function useWaifu2x(outputCanvasRef: React.RefObject<HTMLCanvasElement | 
       else alpha_method = 'scale1x';
       alpha_config = CONFIG.get_config(archStr, domainStr, alpha_method);
       if (!alpha_config) {
-        setMessage('Alpha model not found! (・A・)');
+        setMessage('The matching alpha-channel model could not be found.');
         setMood('error');
         return;
       }
@@ -145,8 +156,9 @@ export function useWaifu2x(outputCanvasRef: React.RefObject<HTMLCanvasElement | 
 
     setRunning(true);
     setMood('working');
-    setMessage('Working my magic... (・∀・)φ');
+    setMessage('Working through the tiles, one by one...');
     setResultUrl(null);
+    setResultDims(null);
     setProgress(0);
     setMaxProgress(0);
 
@@ -163,25 +175,26 @@ export function useWaifu2x(outputCanvasRef: React.RefObject<HTMLCanvasElement | 
           setProgress(p);
           setMaxProgress(max);
           if (processing) {
-            setMessage(`Upscaling... (${p}/${max}) (・∀・)φ`);
+            setMessage(`Upscaling — tile ${p} of ${max}...`);
           }
         }
       );
       if (!onnxRunner.stop_flag) {
+        setResultDims({ width: canvas.width, height: canvas.height });
         canvas.toBlob((blob) => {
           if (!blob) return;
           const url = URL.createObjectURL(blob);
           setResultUrl(url);
-          setMessage("All done, here's your art! (ﾉ・∀・)ﾉ゛");
+          setMessage('Done. Your image has been restored.');
           setMood('done');
         }, 'image/png');
       } else {
-        setMessage('Stopped! (・A・)');
+        setMessage('Stopped.');
         setMood('idle');
       }
     } catch (e) {
       console.error(e);
-      setMessage('Oops, something broke: ' + (e as Error).message);
+      setMessage('Something went wrong: ' + (e as Error).message);
       setMood('error');
     } finally {
       setRunning(false);
@@ -194,6 +207,8 @@ export function useWaifu2x(outputCanvasRef: React.RefObject<HTMLCanvasElement | 
     file,
     previewUrl,
     resultUrl,
+    sourceDims,
+    resultDims,
     running,
     progress,
     maxProgress,

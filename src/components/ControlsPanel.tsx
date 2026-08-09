@@ -1,6 +1,9 @@
 import type { ReactNode } from 'react';
 import { MODEL_OPTIONS, NOISE_OPTIONS, SCALE_OPTIONS, TILE_OPTIONS, TTA_OPTIONS } from '../lib/types';
 import type { Preferences } from '../lib/preferences';
+import { Label } from './ui/label';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from './ui/select';
+import { Switch } from './ui/switch';
 
 interface Props {
   prefs: Preferences;
@@ -8,134 +11,128 @@ interface Props {
   onChange: (patch: Partial<Preferences>) => void;
 }
 
-function Field({ label, children }: { label: string; children: ReactNode }) {
+function Field({ label, htmlFor, children }: { label: string; htmlFor?: string; children: ReactNode }) {
   return (
-    <label className="flex flex-col gap-1.5">
-      <span className="text-xs font-bold uppercase tracking-wide text-mist-500">{label}</span>
+    <div className="flex flex-col gap-2">
+      <Label htmlFor={htmlFor}>{label}</Label>
       {children}
-    </label>
+    </div>
   );
 }
-
-const selectClass =
-  'w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2 font-semibold text-mist-100 shadow-sm outline-none transition-colors focus:border-neon-pink/60 disabled:opacity-50';
 
 export function ControlsPanel({ prefs, disabled, onChange }: Props) {
   const isSwin = prefs.model.startsWith('swin_unet');
 
   return (
-    <div className="glass-panel grid grid-cols-1 gap-4 rounded-3xl p-5 sm:grid-cols-2">
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
       <Field label="Model">
-        <select
-          className={selectClass}
+        <Select
           disabled={disabled}
           value={prefs.model}
-          onChange={(e) => {
-            const model = e.target.value;
+          onValueChange={(model) => {
             const patch: Partial<Preferences> = { model };
-            if (!model.startsWith('swin_unet') && prefs.scale === 4) {
-              patch.scale = 2;
-            }
+            if (!model.startsWith('swin_unet') && prefs.scale === 4) patch.scale = 2;
             onChange(patch);
           }}
         >
-          {MODEL_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value} className="bg-ink-800">
-              {o.label}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {MODEL_OPTIONS.map((o) => (
+              <SelectItem key={o.value} value={o.value}>
+                {o.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </Field>
 
       <Field label="Denoise">
-        <select
-          className={selectClass}
-          disabled={disabled}
-          value={prefs.noise_level}
-          onChange={(e) => onChange({ noise_level: Number(e.target.value) })}
-        >
-          {NOISE_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value} className="bg-ink-800">
-              {o.label}
-            </option>
-          ))}
-        </select>
+        <Select disabled={disabled} value={String(prefs.noise_level)} onValueChange={(v) => onChange({ noise_level: Number(v) })}>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {NOISE_OPTIONS.map((o) => (
+              <SelectItem key={o.value} value={String(o.value)}>
+                {o.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </Field>
 
-      <Field label="Upscale">
-        <div className="flex items-center gap-2">
-          <select
-            className={selectClass}
-            disabled={disabled}
-            value={prefs.scale}
-            onChange={(e) => onChange({ scale: Number(e.target.value) as 1 | 2 | 4 })}
-          >
+      <Field label="Upscale factor">
+        <Select
+          disabled={disabled}
+          value={String(prefs.scale)}
+          onValueChange={(v) => onChange({ scale: Number(v) as 1 | 2 | 4 })}
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
             {SCALE_OPTIONS.filter((o) => isSwin || o.value !== 4).map((o) => (
-              <option key={o.value} value={o.value} className="bg-ink-800">
+              <SelectItem key={o.value} value={String(o.value)}>
                 {o.label}
-              </option>
+              </SelectItem>
             ))}
-          </select>
-          {!isSwin && <span className="text-[11px] text-mist-500 whitespace-nowrap">no 4x</span>}
-        </div>
+          </SelectContent>
+        </Select>
       </Field>
 
       <Field label="Tile size">
-        <div className="flex items-center gap-2">
-          <select
-            className={selectClass}
-            disabled={disabled}
-            value={prefs.tile_size}
-            onChange={(e) => onChange({ tile_size: Number(e.target.value) })}
-          >
+        <Select disabled={disabled} value={String(prefs.tile_size)} onValueChange={(v) => onChange({ tile_size: Number(v) })}>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
             {TILE_OPTIONS.map((t) => (
-              <option key={t} value={t} className="bg-ink-800">
+              <SelectItem key={t} value={String(t)}>
                 {t}
-              </option>
+              </SelectItem>
             ))}
-          </select>
-          <label className="flex items-center gap-1 text-xs font-semibold text-mist-500 whitespace-nowrap">
-            <input
-              type="checkbox"
-              disabled={disabled}
-              checked={prefs.tile_random}
-              onChange={(e) => onChange({ tile_random: e.target.checked })}
-              className="accent-neon-pink h-4 w-4"
-            />
-            Shuffle
-          </label>
+          </SelectContent>
+        </Select>
+      </Field>
+
+      <Field label="TTA ensemble">
+        <Select disabled={disabled} value={String(prefs.tta)} onValueChange={(v) => onChange({ tta: Number(v) })}>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {TTA_OPTIONS.map((t) => (
+              <SelectItem key={t} value={String(t)}>
+                {t === 0 ? 'Off' : `${t} passes`}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </Field>
+
+      <Field label="Alpha channel" htmlFor="alpha-toggle">
+        <div className="flex h-10 items-center gap-3">
+          <Switch
+            id="alpha-toggle"
+            disabled={disabled}
+            checked={prefs.alpha === 1}
+            onCheckedChange={(checked) => onChange({ alpha: checked ? 1 : 0 })}
+          />
+          <span className="text-sm text-muted-foreground">{prefs.alpha === 1 ? 'Auto-detect transparency' : 'Disabled'}</span>
         </div>
       </Field>
 
-      <Field label="TTA (ensemble)">
-        <select
-          className={selectClass}
-          disabled={disabled}
-          value={prefs.tta}
-          onChange={(e) => onChange({ tta: Number(e.target.value) })}
-        >
-          {TTA_OPTIONS.map((t) => (
-            <option key={t} value={t} className="bg-ink-800">
-              {t}
-            </option>
-          ))}
-        </select>
-      </Field>
-
-      <Field label="Alpha channel">
-        <select
-          className={selectClass}
-          disabled={disabled}
-          value={prefs.alpha}
-          onChange={(e) => onChange({ alpha: Number(e.target.value) })}
-        >
-          <option value={1} className="bg-ink-800">
-            Auto
-          </option>
-          <option value={0} className="bg-ink-800">
-            Disable
-          </option>
-        </select>
+      <Field label="Tile order">
+        <div className="flex h-10 items-center gap-3">
+          <Switch
+            disabled={disabled}
+            checked={prefs.tile_random}
+            onCheckedChange={(checked) => onChange({ tile_random: checked })}
+          />
+          <span className="text-sm text-muted-foreground">{prefs.tile_random ? 'Shuffled' : 'In order'}</span>
+        </div>
       </Field>
     </div>
   );

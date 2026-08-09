@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
 import { checkClipboardSupport, readImageFromClipboard, uuid } from '../lib/clipboard';
+import { Button } from './ui/button';
 
 interface Props {
   previewUrl: string | null;
@@ -33,8 +33,7 @@ export function UploadZone({ previewUrl, disabled, onFile }: Props) {
   }, [disabled, onFile]);
 
   return (
-    <motion.div
-      whileHover={disabled ? undefined : { scale: 1.01 }}
+    <div
       onDragOver={(e) => {
         e.preventDefault();
         if (!disabled) setDragOver(true);
@@ -46,8 +45,8 @@ export function UploadZone({ previewUrl, disabled, onFile }: Props) {
         handleFiles(e.dataTransfer.files);
       }}
       onClick={() => !disabled && inputRef.current?.click()}
-      className={`group relative flex flex-col items-center justify-center gap-3 rounded-3xl border-2 border-dashed p-6 text-center transition-colors cursor-pointer select-none
-        ${dragOver ? 'border-neon-pink bg-white/[0.07]' : 'border-white/15 glass-panel hover:border-neon-violet/50'}
+      className={`flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed p-8 text-center transition-colors cursor-pointer
+        ${dragOver ? 'border-primary bg-accent/40' : 'border-border bg-muted/40 hover:bg-muted/60'}
         ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
     >
       <input
@@ -59,31 +58,30 @@ export function UploadZone({ previewUrl, disabled, onFile }: Props) {
         onChange={(e) => handleFiles(e.target.files)}
       />
       {previewUrl ? (
-        <img
-          src={previewUrl}
-          alt="preview"
-          className="max-h-40 rounded-2xl border border-white/10 shadow-lg object-contain"
-        />
+        <img src={previewUrl} alt="preview" className="max-h-40 rounded-xl border border-border object-contain shadow-sm" />
       ) : (
-        <div className="text-6xl animate-bob">🖼️</div>
+        <div className="text-5xl">🌿</div>
       )}
-      <p className="font-display font-bold text-mist-100">
-        {previewUrl ? 'Loaded — click or drop to swap' : 'Drop your image here'}
+      <p className="font-display text-lg font-medium text-foreground">
+        {previewUrl ? 'Image loaded — click or drop to replace' : 'Set an image down here'}
       </p>
-      <p className="text-xs text-mist-500">or click to browse{clipboardSupported ? ' · or paste from clipboard' : ''}</p>
+      <p className="text-sm text-muted-foreground">
+        or click to browse{clipboardSupported ? ', or paste from clipboard' : ''}
+      </p>
       {clipboardSupported && (
-        <button
+        <Button
           type="button"
+          variant="outline"
+          size="sm"
           disabled={disabled}
           onClick={(e) => {
             e.stopPropagation();
             handlePaste();
           }}
-          className="mt-1 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-sm font-semibold text-mist-300 transition-colors hover:border-neon-cyan-soft hover:text-neon-cyan-soft disabled:opacity-50"
         >
-          📋 Paste image
-        </button>
+          Paste image
+        </Button>
       )}
-    </motion.div>
+    </div>
   );
 }
