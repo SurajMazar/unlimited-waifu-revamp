@@ -68,7 +68,10 @@ This is a static SPA (Vite build), so it deploys to Vercel with zero config beyo
 - `outputDirectory: dist`
 - Cross-Origin-Opener-Policy / Cross-Origin-Embedder-Policy headers, so the browser can use
   `SharedArrayBuffer` and onnxruntime-web can run multi-threaded WASM for faster inference.
-- Long-lived cache headers for the `.onnx` model files and the `.wasm` runtime.
+- Long-lived cache headers for the `.onnx` model files and the `.wasm` runtime. Deliberately **without**
+  `immutable`: Vercel applies these headers to 404s too, so if a model is ever missing from a deploy the
+  browser would otherwise pin that 404 for a year and refuse to revalidate even on reload. Plain
+  `max-age` keeps the caching benefit while still letting a reload recover.
 
 Just import the repo in Vercel (or run `vercel`), keep the framework preset as **Vite**, and it'll deploy with
 the model weights included — see the note above if you'd rather host them externally instead.
