@@ -10,9 +10,10 @@ import type { Arch, Domain } from '../lib/types';
 // which expects the wasm/worker runtime files to be served ourselves rather than
 // bundled — they're copied into public/ort/ (see README for how to refresh them).
 ort.env.wasm.wasmPaths = `${import.meta.env.BASE_URL}ort/`;
-// Avoid the dedicated proxy-worker path entirely — it's the piece that broke under
-// bundlers in the first place, and single/pthreaded wasm on the main thread is plenty
-// fast for tiled rendering.
+// ORT's proxy worker stays off: under Vite it either fails to load its wasm loader or
+// hangs mid-session, which is why it was disabled originally. Inference therefore runs
+// on the main thread, so onnxRunner yields to the event loop between tiles to keep the
+// page painting and interactive (see the yield in tiled_render).
 ort.env.wasm.proxy = false;
 if (typeof navigator !== 'undefined' && navigator.hardwareConcurrency) {
   // Threaded wasm only kicks in when the page is cross-origin isolated
